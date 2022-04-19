@@ -161,6 +161,8 @@ MonoBehaviour:
   - {fileID: 1755806282}
   - {fileID: 1400959664}
   - {fileID: 1606480692}
+  actions: {fileID: 0}
+  crafterController: {fileID: 0}
 --- !u!4 &35180736
 Transform:
   m_ObjectHideFlags: 0

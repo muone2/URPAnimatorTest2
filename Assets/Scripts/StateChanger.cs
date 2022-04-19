@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CraftingAnims;
 
 public class StateChanger : MonoBehaviour
 {
     public GameObject player;
     public GameObject homePos;
     public List<GameObject> TargetPos;
+    public CrafterActions actions;
+    public CrafterController crafterController;
 
     bool MoveOn = true;
 
@@ -24,6 +27,9 @@ public class StateChanger : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        actions = player.GetComponent<CrafterActions>();
+        crafterController = player.GetComponent<CrafterController>();
+
         TargetPos.Add(homePos); //¸®½ºÆ®°¡ ÇÑ Ä­ ´Ã¾î³²
         targetNum = TargetPos.Count - 1;
         startNum = TargetPos.Count - 1;
@@ -75,6 +81,7 @@ public class StateChanger : MonoBehaviour
             moveRate = 0;
             CheckMoveTime();
             TurnToTarget();
+            crafterController.ChangeCharacterState(0f, CrafterState.Sit);
         }
     }
 
