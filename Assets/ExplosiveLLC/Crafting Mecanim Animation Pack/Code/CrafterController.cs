@@ -194,6 +194,9 @@ namespace CraftingAnims
 			else { isRunning = false; }
 
 			// If not using Navmesh, update Character movement.
+			
+				
+			/*
 			if (!navMeshNavigation) {
 				if (UpdateMovement() > 0) {
 					isMoving = true;
@@ -203,7 +206,6 @@ namespace CraftingAnims
 					isMoving = false;
 					animator.SetBool("Moving", false);
 				}
-
 				// Get local velocity of charcter and update animator with values.
 				float velocityXel = transform.InverseTransformDirection(rb.velocity).x;
 				float velocityZel = transform.InverseTransformDirection(rb.velocity).z;
@@ -213,7 +215,7 @@ namespace CraftingAnims
 					animator.SetFloat("Velocity X", velocityXel / runSpeed);
 					animator.SetFloat("Velocity Y", velocityZel / runSpeed);
 				}
-			}
+			}*/
 		}
 
 		/// <summary>
@@ -397,7 +399,7 @@ namespace CraftingAnims
 		/// </summary>
 		public void TriggerAnimation(string trigger)
 		{
-			Debug.Log("TriggerAnimation: " + ( CrafterAnimatorTriggers )System.Enum.Parse(typeof(CrafterAnimatorTriggers), trigger) + " - " + ( int )( CrafterAnimatorTriggers )System.Enum.Parse(typeof(CrafterAnimatorTriggers), trigger));
+		//	Debug.Log("TriggerAnimation: " + ( CrafterAnimatorTriggers )System.Enum.Parse(typeof(CrafterAnimatorTriggers), trigger) + " - " + ( int )( CrafterAnimatorTriggers )System.Enum.Parse(typeof(CrafterAnimatorTriggers), trigger));
 			animator.SetInteger("Action", ( int )( CrafterAnimatorTriggers )System.Enum.Parse(typeof(CrafterAnimatorTriggers), trigger));
 			animator.SetTrigger("Trigger");
 		}

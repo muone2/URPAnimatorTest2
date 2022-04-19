@@ -588,6 +588,26 @@ namespace CraftingAnims
 			}
 
 			#endregion
+
+
+			if (action == "Walk")
+			{
+				crafterController.isMoving = true;
+				crafterController.animator.SetBool("Moving", true);
+				crafterController.animator.SetFloat("Velocity Y", 0.5f);
+			}
+			if (action == "Run")
+			{
+				crafterController.isMoving = true;
+				crafterController.animator.SetBool("Moving", true);
+				crafterController.animator.SetFloat("Velocity Y", 1.0f);
+			}
+			if (action == "WalkEnd")
+			{
+				crafterController.isMoving = false;
+				crafterController.animator.SetBool("Moving", false);
+				crafterController.animator.SetFloat("Velocity Y", 0.0f);
+			}
 		}
 	}
 }

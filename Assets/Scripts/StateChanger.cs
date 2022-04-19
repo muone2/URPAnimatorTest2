@@ -8,17 +8,22 @@ public class StateChanger : MonoBehaviour
     public GameObject player;
     public GameObject homePos;
     public List<GameObject> TargetPos;
-    public CrafterActions actions;
-    public CrafterController crafterController;
+    public float oneSecondMoveDistance = 0; //20일 때는 3.5가 좋았음.
 
-    bool MoveOn = true;
+    CrafterActions actions;
+    CrafterController crafterController;
+
+    bool MoveOn = false;
+    bool endCoroutine = true;
 
     float distance = 0;
     float moveTime = 0;
     float moveRate = 0;
+    float rate = 0;
 
     int startNum;
     int targetNum;
+    int swingCount = 0;
 
     Vector3 tmpVec;
     Vector3 StartPos;
@@ -34,19 +39,37 @@ public class StateChanger : MonoBehaviour
         targetNum = TargetPos.Count - 1;
         startNum = TargetPos.Count - 1;
 
-        ChangeState();
+        ChangeTarget();
         CheckTargetAndSet();
     }
 
     // Update is called once per frame
     void Update()
     {
+        rate += Time.deltaTime;
+        if (rate > 10f)
+        {
+            rate = 0;
+            ChangeTarget();
+            CheckTargetAndSet();
+        }
+
         if (MoveOn == true && moveRate <= 1)
         {
             moveRate += Time.deltaTime / moveTime;
             if (moveRate >= 1)
+            {
                 MoveOn = false;
+                actions.TakeAction("WalkEnd");
+                swingCount = 0;
+            }
         }
+        else if (MoveOn == false && moveRate >= 1 && endCoroutine  == true)
+        {
+            StartCoroutine(SetSwingAni());
+        }
+
+
     }
 
     private void FixedUpdate()
@@ -57,7 +80,7 @@ public class StateChanger : MonoBehaviour
         }
     }
 
-    void ChangeState()
+    void ChangeTarget()
     { //임시
         startNum = targetNum;
         targetNum = Random.Range(0, TargetPos.Count - 1); //실제로는 -2지점까지 계산하게 됨
@@ -68,7 +91,7 @@ public class StateChanger : MonoBehaviour
     {
         tmpVec = TargetPos[targetNum].transform.position - player.transform.position;
         distance = tmpVec.magnitude;
-        Debug.Log(distance);
+        Debug.Log("거리: " + distance);
         if (distance < 1f)
         {
             MoveOn = false;
@@ -76,12 +99,10 @@ public class StateChanger : MonoBehaviour
         }
         else
         {
-            MoveOn = true;
-            StartPos = player.transform.position;
-            moveRate = 0;
-            CheckMoveTime();
-            TurnToTarget();
-            crafterController.ChangeCharacterState(0f, CrafterState.Sit);
+            if(crafterController.charState == CrafterState.PickAxing || crafterController.charState == CrafterState.PickAxe)
+                StartCoroutine(EndSwingAndWalkAni());
+            else
+                StartCoroutine(WalkAni());
         }
     }
 
@@ -89,7 +110,7 @@ public class StateChanger : MonoBehaviour
     {
         // 거리/속력 = 시간
         // 즉, distance / 초당 이동할 거리(애니메이션 보고 결정, 캐릭터 크기에 비례) = moveTime
-        moveTime = distance / 5.0f; //임시로 5 
+        moveTime = distance / oneSecondMoveDistance;
     }
 
     void TurnToTarget()
@@ -101,7 +122,61 @@ public class StateChanger : MonoBehaviour
 
     void MoveToTarget()
     {
-        player.transform.position = 
+        player.transform.position =
             Vector3.Lerp(StartPos, TargetPos[targetNum].transform.position, moveRate);
     }
+
+    IEnumerator SetSwingAni()
+    {
+        endCoroutine = false;
+        if (crafterController.charState != CrafterState.PickAxing)
+        {
+            actions.TakeAction("Get PickAxe");
+            yield return new WaitForSecondsRealtime(1.0f);
+
+            actions.TakeAction("Start PickAxing");
+            yield return new WaitForSecondsRealtime(1.0f);
+        }
+        actions.TakeAction("Swing Horizontal");
+        swingCount++;
+        yield return new WaitForSecondsRealtime(1.0f);
+        endCoroutine = true;
+    }
+
+    IEnumerator EndSwingAndWalkAni()
+    {
+        if (crafterController.charState == CrafterState.PickAxing)
+        {
+            actions.TakeAction("Finish PickAxing");
+            yield return new WaitForSecondsRealtime(1.0f);
+        }
+
+        if (crafterController.charState == CrafterState.PickAxe)
+        {
+            actions.TakeAction("Drop Item");
+            yield return new WaitForSecondsRealtime(1.0f);
+        }
+
+        StartPos = player.transform.position;
+        moveRate = 0;
+        CheckMoveTime();
+        TurnToTarget();
+
+        actions.TakeAction("Walk");
+        MoveOn = true;
+    }
+
+    IEnumerator WalkAni()
+    {
+        yield return new WaitForSecondsRealtime(0.0f);
+
+        StartPos = player.transform.position;
+        moveRate = 0;
+        CheckMoveTime();
+        TurnToTarget();
+
+        actions.TakeAction("Walk");
+        MoveOn = true;
+    }
 }
+
